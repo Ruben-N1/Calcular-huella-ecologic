@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#153d32">
+  <title>Calculadora de huella ecológica</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18362d;
+      --muted: #4b6258;
+      --forest: #153d32;
+      --lime: #d8f58e;
+      --paper: #f5f6ee;
+      --line: #d9e1d5;
+      --white: #fff;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    .wrap { width: min(100% - 3rem, 66rem); margin-inline: auto; }
+    .hero {
+      background: radial-gradient(ellipse at 85% 90%, #28604d, transparent 55%), var(--forest);
+      color: #f7fbf2;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr);
+      align-items: center;
+      gap: 2rem;
+      padding-block: 3.2rem 3.6rem;
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      margin: 0 0 1.05rem;
+      color: var(--lime);
+      font-size: .76rem;
+      font-weight: 750;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: .55rem; height: .55rem; border-radius: 50%; background: currentColor; flex: none; }
+    h1, h2, h3, p { margin-block-start: 0; }
+    h1 {
+      margin-block-end: 1.1rem;
+      font: 500 clamp(2.45rem, 6.2vw, 5.2rem)/.99 Georgia, serif;
+      letter-spacing: -.055em;
+    }
+    h1 em { color: var(--lime); font-weight: inherit; }
+    .lead { max-width: 31rem; margin-bottom: 0; color: #e4efe6; font-size: clamp(1rem, 1.8vw, 1.2rem); }
+    .planet { display: block; width: 100%; max-width: 24rem; height: auto; justify-self: end; }
+    main { padding-block: 2.75rem 3.75rem; }
+    .intro { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .8rem 1rem; margin-bottom: 1.35rem; }
+    .intro h2 { margin-bottom: .18rem; font: 500 clamp(1.8rem, 4vw, 2.55rem)/1.1 Georgia, serif; letter-spacing: -.035em; }
+    .intro p { margin-bottom: 0; color: var(--muted); }
+    .badge { background: #e8eedf; border-radius: 50rem; padding: .34rem .8rem; color: #345745; font-size: .8rem; font-weight: 700; }
+    .sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 1rem; }
+    fieldset {
+      min-inline-size: 0;
+      margin: 0;
+      padding: 0 1.25rem 1.3rem;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: var(--white);
+      box-shadow: 0 3px 10px #14372b08;
+    }
+    legend { float: left; width: 100%; margin: 0 0 1rem; padding: 1.05rem 0 .85rem; border-bottom: 1px solid #ebefe8; font-size: 1.09rem; font-weight: 750; }
+    .fields { clear: both; display: grid; gap: .9rem; }
+    .index { display: inline-grid; place-items: center; width: 2rem; height: 2rem; margin-right: .55rem; background: #e9f3e1; color: #25553e; border-radius: .65rem; font-size: .75rem; font-weight: 800; vertical-align: middle; }
+    .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+    .pair > div { display: grid; align-content: space-between; }
+    label { display: block; margin-bottom: .35rem; font-size: .9rem; font-weight: 640; }
+    select, input {
+      display: block;
+      width: 100%;
+      min-height: 2.85rem;
+      padding: .58rem .75rem;
+      border: 1px solid #aebeb1;
+      border-radius: .55rem;
+      background-color: #fcfdf9;
+      color: var(--ink);
+      font: inherit;
+    }
+    select:invalid, input::placeholder { color: #586b61; opacity: 1; }
+    select option { color: var(--ink); }
+    select:hover, input:hover { border-color: #597f69; }
+    :focus-visible { outline: 3px solid #287753; outline-offset: 3px; }
+    :is(input, select):user-invalid { border-color: #a7352a; }
+    .action {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      min-width: 0;
+      padding: 1.2rem 1.25rem;
+      border-radius: 1rem;
+      background: var(--forest);
+      color: #f7fbf2;
+    }
+    .action h3 { margin-bottom: .28rem; font: 500 1.45rem/1.2 Georgia, serif; }
+    .action p { margin-bottom: .85rem; color: #e0ece2; font-size: .92rem; }
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .7rem;
+      min-height: 2.95rem;
+      max-width: 100%;
+      border: 0;
+      border-radius: .65rem;
+      padding: .65rem 1rem;
+      background: var(--lime);
+      color: #18362d;
+      font: 750 1rem/1.25 system-ui, sans-serif;
+      cursor: pointer;
+      text-align: center;
+    }
+    button:hover:not(:disabled) { background: #e8ffa8; }
+    button:focus-visible { outline-color: var(--lime); }
+    button:disabled { opacity: .75; cursor: wait; }
+    .status:not(:empty) { margin: 1rem 0 0; padding: .9rem 1rem; border-radius: .7rem; border: 1px solid #c9d9c7; background: #eaf2e6; overflow-wrap: anywhere; }
+    .status[data-state="error"]:not(:empty) { border-color: #e4b9b2; background: #fcece9; color: #7c2920; }
+    .result { margin-top: 1rem; padding: 1.4rem; border: 1px solid #bfd4a8; border-radius: 1rem; background: #eaf4dd; }
+    .result h3 { margin-bottom: .4rem; font: 500 1.65rem/1.2 Georgia, serif; }
+    .result p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .result p[data-number="true"] { color: #24583c; font: 500 clamp(2rem, 6vw, 3.4rem)/1.1 Georgia, serif; }
+    @media (max-width: 45rem) {
+      .wrap { width: calc(100% - 2rem); }
+      .hero-inner { gap: .75rem; padding-block: 2.1rem 2.3rem; }
+      .sections { grid-template-columns: 1fr; }
+      main { padding-block: 2rem 2.6rem; }
+    }
+    @media (max-width: 31rem) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .planet { width: 10rem; justify-self: center; }
+      fieldset, .action { padding-inline: 1rem; }
+      button { width: 100%; }
+    }
+    @media (max-width: 22rem) { .pair { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap hero-inner">
+      <div>
+        <p class="eyebrow">Hábitos y planeta</p>
+        <h1>Calculadora de<br><em>huella ecológica</em></h1>
+        <p class="lead">Si todos vivieran como tú, ¿cuántos planetas Tierra harían falta? Responde diez preguntas sobre tus hábitos para descubrirlo.</p>
+      </div>
+      <svg class="planet" viewBox="0 0 360 266" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="ocean" cx="34%" cy="27%" r="73%">
+            <stop stop-color="#549e7f"/><stop offset="1" stop-color="#245548"/>
+          </radialGradient>
+          <clipPath id="globe"><circle cx="179" cy="129" r="86"/></clipPath>
+        </defs>
+        <circle cx="179" cy="129" r="112" fill="none" stroke="#8dc4a4" opacity=".35" stroke-dasharray="2 6"/>
+        <ellipse cx="179" cy="129" rx="156" ry="58" transform="rotate(-24 179 129)" fill="none" stroke="#91c7ab" opacity=".62"/>
+        <circle cx="179" cy="129" r="86" fill="url(#ocean)" stroke="#c3e4b9"/>
+        <g clip-path="url(#globe)">
+          <g stroke="#a9ddbb" fill="none" opacity=".33">
+            <ellipse cx="179" cy="129" rx="52" ry="86"/><ellipse cx="179" cy="129" rx="21" ry="86"/>
+            <path d="M90 129h180M101 88q78 22 156 0M101 170q78-22 156 0"/>
+          </g>
+          <g fill="#cde987">
+            <path d="M96 94l18-24 18 1 12-12 17 7 19-6 11 10-10 10-14 3-4 12-14 4-4 13 9 12-7 5-9-9-11-3-5-10-12-6-9 3z"/>
+            <path d="M154 132l14-6 13 8 5 11 15 7-3 13-12 10-6 18-12 12-7-10 1-14-9-13 3-12-9-13z"/>
+            <path d="M197 64l11-12 14 8-4 12-12 7-9-5zM214 101l14-10 12 2 7-9 15 8 12 13-10 16-12-1-8 10-9-7-12 1-5-11-12-4zM219 130l14-4 14 7 1 13-11 17-8 15-10-6-2-16-8-8 1-12zM249 179l12-9 12 5-5 12-13 2z"/>
+          </g>
+        </g>
+        <path d="M36 181c19 26 99 20 175-11 73-30 129-75 112-97" fill="none" stroke="#bde2bc" stroke-width="1.5" stroke-linecap="round" opacity=".8"/>
+        <circle cx="305" cy="105" r="6" fill="#d8f58e"/><circle cx="71" cy="162" r="3" fill="#d8f58e"/>
+        <path d="M291 39v18m-9-9h18M66 70v12m-6-6h12M285 196v12m-6-6h12" stroke="#d8f58e" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="intro">
+      <div>
+        <h2>Tus hábitos cotidianos</h2>
+        <p>Completa todos los campos. Puedes usar 0 cuando corresponda.</p>
+      </div>
+      <span class="badge">10 preguntas</span>
+    </div>
+
+    <form id="huella" method="post">
+      <div class="sections">
+        <fieldset>
+          <legend><span class="index" aria-hidden="true">01</span>Alimentación</legend>
+          <div class="fields">
+            <div>
+              <label for="carne">¿Cada cuánto comes carne de res o cerdo?</label>
+              <select id="carne" name="carne" required>
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option>Nunca</option>
+                <option>1-2 veces por semana</option>
+                <option>3-5 veces por semana</option>
+                <option>Diario</option>
+              </select>
+            </div>
+            <div>
+              <label for="local">¿Qué parte de tu comida es local o de temporada?</label>
+              <select id="local" name="local" required>
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option>Casi nada</option>
+                <option>La mitad</option>
+                <option>Casi toda</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="index" aria-hidden="true">02</span>Transporte</legend>
+          <div class="fields">
+            <div>
+              <label for="transporte">¿Cuál es tu medio principal de transporte?</label>
+              <select id="transporte" name="transporte" required>
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option>Caminar o bicicleta</option>
+                <option>Camión urbano</option>
+                <option>Moto</option>
+                <option>Auto propio</option>
+              </select>
+            </div>
+            <div class="pair">
+              <div>
+                <label for="km">Kilómetros al día</label>
+                <input type="number" inputmode="decimal" id="km" name="km" min="0" step="any" placeholder="Ej. 12" required>
+              </div>
+              <div>
+                <label for="vuelos">Vuelos en avión al año</label>
+                <input type="number" inputmode="numeric" id="vuelos" name="vuelos" min="0" step="1" placeholder="Ej. 0" required>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="index" aria-hidden="true">03</span>Energía</legend>
+          <div class="fields">
+            <div>
+              <label for="aire">Horas al día de aire acondicionado en casa</label>
+              <input type="number" inputmode="decimal" id="aire" name="aire" min="0" max="24" step="any" placeholder="De 0 a 24" required>
+            </div>
+            <div>
+              <label for="personas">¿Cuántas personas viven en tu casa, incluyéndote?</label>
+              <input type="number" inputmode="numeric" id="personas" name="personas" min="1" step="1" placeholder="Ej. 3" required>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="index" aria-hidden="true">04</span>Consumo</legend>
+          <div class="fields">
+            <div>
+              <label for="ropa">¿Cuántas prendas nuevas compras al mes?</label>
+              <input type="number" inputmode="numeric" id="ropa" name="ropa" min="0" step="1" placeholder="Ej. 2" required>
+            </div>
+            <div>
+              <label for="celular">¿Cada cuántos años cambias de celular?</label>
+              <input type="number" inputmode="decimal" id="celular" name="celular" min="0" step="any" placeholder="Ej. 3" required>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span class="index" aria-hidden="true">05</span>Residuos</legend>
+          <div class="fields">
+            <div>
+              <label for="separa">¿Separas la basura?</label>
+              <select id="separa" name="separa" required>
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option>Sí</option>
+                <option>A veces</option>
+                <option>No</option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="action">
+          <h3>¿Cuántas Tierras?</h3>
+          <p>Envía tus respuestas para obtener tu estimación.</p>
+          <button type="submit" id="calcular"><span id="texto-boton">Calcular mi huella</span><span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+    </form>
+
+    <div id="estado" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
+    <section id="resultado" class="result" aria-labelledby="titulo-resultado" hidden tabindex="-1">
+      <h3 id="titulo-resultado">Tu huella ecológica</h3>
+      <p id="valor-resultado"></p>
+    </section>
+    <noscript><p>Activa JavaScript para poder enviar tus respuestas.</p></noscript>
+  </main>
+
+  <script>
+    // Pega aquí la URL de tu webhook de Make, entre las comillas.
+    const WEBHOOK_URL = '';
+
+    const form = document.getElementById('huella');
+    const button = document.getElementById('calcular');
+    const buttonText = document.getElementById('texto-boton');
+    const statusBox = document.getElementById('estado');
+    const result = document.getElementById('resultado');
+    const resultValue = document.getElementById('valor-resultado');
+    const phone = form.elements.namedItem('celular');
+    const fieldNames = ['carne', 'local', 'transporte', 'km', 'vuelos', 'aire', 'personas', 'ropa', 'celular', 'separa'];
+
+    function setStatus(message, state = '') {
+      statusBox.dataset.state = state;
+      statusBox.textContent = message;
+    }
+
+    function validatePhone() {
+      phone.setCustomValidity(phone.valueAsNumber === 0 ? 'Escribe un número de años mayor que cero.' : '');
+    }
+
+    phone.addEventListener('input', validatePhone);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (button.disabled) return;
+      validatePhone();
+      if (!form.reportValidity()) return;
+
+      result.hidden = true;
+      setStatus('');
+      const url = WEBHOOK_URL.trim();
+      if (!/^https:\/\/[^\s]+$/i.test(url)) {
+        setStatus('Falta configurar Make. Pega la URL HTTPS de tu webhook en WEBHOOK_URL dentro del archivo HTML.', 'error');
+        return;
+      }
+
+      const data = new FormData(form);
+      const body = new URLSearchParams();
+      for (const name of fieldNames) body.append(name, data.get(name));
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 60000);
+      button.disabled = true;
+      buttonText.textContent = 'Calculando…';
+      setStatus('Enviando tus respuestas. Espera el resultado de Make…', 'waiting');
+
+      try {
+        const response = await fetch(url, { method: 'POST', body, signal: controller.signal });
+        if (!response.ok) {
+          setStatus(`Make devolvió un error (HTTP ${response.status}). Revisa el escenario e inténtalo de nuevo.`, 'error');
+          return;
+        }
+
+        // En Make, Webhook response puede devolver el número de Tierras o un texto en el cuerpo.
+        const answer = (await response.text()).trim();
+        if (!answer || /^accepted$/i.test(answer)) {
+          setStatus('Make recibió tus respuestas. Para mostrar la estimación, el escenario debe devolverla con el módulo Webhook response.', 'success');
+          return;
+        }
+
+        const isNumber = /^\d+(?:[.,]\d+)?$/.test(answer);
+        const earths = isNumber ? Number(answer.replace(',', '.')) : NaN;
+        resultValue.dataset.number = String(Number.isFinite(earths));
+        resultValue.textContent = Number.isFinite(earths)
+          ? `${new Intl.NumberFormat('es-MX', { maximumSignificantDigits: 6 }).format(earths)} ${earths === 1 ? 'planeta Tierra' : 'planetas Tierra'}`
+          : answer;
+        setStatus('');
+        result.hidden = false;
+        result.focus();
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          setStatus('Make tardó demasiado en responder. Revisa el escenario antes de volver a enviar.', 'error');
+        } else {
+          setStatus('No se pudo leer la respuesta de Make. Revisa la conexión y que el módulo Webhook response permita el acceso desde tu navegador.', 'error');
+        }
+      } finally {
+        clearTimeout(timeout);
+        button.disabled = false;
+        buttonText.textContent = 'Calcular mi huella';
+      }
+    });
+  </script>
+</body>
+</html>
