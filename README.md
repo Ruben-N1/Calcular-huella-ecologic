@@ -39,7 +39,9 @@ Para utilizar el proyecto:
 La copia pública deja el webhook vacío y el blueprint deja sin vincular el webhook y la conexión de IA. El formulario incluye kilómetros diarios, pero el mensaje del blueprint todavía no pasa ese campo al agente.
 
 ## Video del funcionamiento
-[Ver demostración sin audio](video/Huella_ecologica_sin_audio.mp4)
+[![Ver video del funcionamiento](https://img.youtube.com/vi/wDl3sm-_CGs/hqdefault.jpg)](https://youtu.be/wDl3sm-_CGs)
+
+[Ver en YouTube](https://youtu.be/wDl3sm-_CGs) · [Video sin audio en el repositorio](video/Huella_ecologica_sin_audio.mp4)
 
 ## Imágenes
 Integración de la calculadora con el agente de IA en Make:
